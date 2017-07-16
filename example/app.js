@@ -30,6 +30,7 @@ app.post('/form',
 text: ${req.body.text}
 csrf: ${req.body.csrf}
 </pre>
+<a href="/form">back</a>
     `)
   }
 )
