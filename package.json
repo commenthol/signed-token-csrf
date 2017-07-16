@@ -1,0 +1,62 @@
+{
+  "name": "signed-token-csrf",
+  "version": "1.0.0-0",
+  "description": "CSRF connect middleware using signed tokens",
+  "keywords": [
+    "connect",
+    "csrf",
+    "middleware"
+  ],
+  "homepage": "https://github.com/commenthol/signed-token-csrf#readme",
+  "bugs": {
+    "url": "https://github.com/commenthol/signed-token-csrf/issues"
+  },
+  "license": "Unlicense",
+  "author": "commenthol <commenthol@gmail.com>",
+  "main": "src",
+  "directories": {
+    "example": "example",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/commenthol/signed-token-csrf.git"
+  },
+  "scripts": {
+    "all": "npm run lint && npm test",
+    "clean": "rimraf coverage .nyc_output",
+    "cover": "nyc --reporter=lcov --reporter=text npm test",
+    "lint": "eslint '**/*.js'",
+    "test": "mocha"
+  },
+  "eslintConfig": {
+    "extends": [
+      "standard"
+    ]
+  },
+  "dependencies": {
+    "asyncc-promise": "^1.0.0",
+    "compare-timing-safe": "^1.0.0",
+    "connect-chain-if": "^1.0.0",
+    "cookie": "^0.3.1",
+    "lodash.get": "^4.4.2",
+    "lodash.set": "^4.3.2",
+    "signed-token": "^1.1.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.2.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "express": "^4.15.3",
+    "express-session": "^1.15.3",
+    "mocha": "^3.4.2",
+    "set-cookie-parser": "^2.0.0",
+    "supertest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">= 6.0.0"
+  }
+}
