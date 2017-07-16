@@ -2,7 +2,6 @@ const Cookie = require('cookie')
 const signedToken = require('signed-token')
 const timingSafeEqual = require('compare-timing-safe')
 const chain = require('connect-chain-if')
-const _set = require('lodash.set')
 const _get = require('lodash.get')
 
 /**
@@ -10,11 +9,14 @@ const _get = require('lodash.get')
 *
 * @example
 * const Csrf = require('signed-token-csrf')
-* const csrf = new Csrf('mycsrfsecret', {cookie: {secure: false}}).csrf
+* const csrf = new Csrf('csrfSecret', {cookie: {secure: false}}).csrf
 * const app = require('express')()
 * app.use('/',
 *   bodyParser.urlencoded({extended: false}),
-*   csrf // adds CSRF middleware
+*   csrf, // adds CSRF middleware
+*   (req, res) => {
+*     res.json({ csrf: req.csrfToken() })
+*   }
 * )
 */
 class Csrf {
@@ -41,9 +43,10 @@ class Csrf {
   }
 
   /**
-  * creates a CSRF token and sets `res.locals.csrf` as well as the secret for
+  * Creates method `req.csrfToken()` to get CSRF token as well as the secret for
   * signing in `req.session.csrf` if available or sets a `csrf` cookie.
-  * Name of session key and cookie name can be changed via `opts.name`
+  * Name of session key and cookie name can be changed via `opts.name`.
+  * Default name is `csrf`.
   */
   create (req, res, next) {
     const {opts} = this || {}
@@ -65,9 +68,7 @@ class Csrf {
       secret = this._signSecret.createSync()
     }
 
-    const token = signedToken(secret, opts.token).createSync()
-    // use res.locals.csrf to set hidden input in form
-    _set(res, ['locals', opts.name], token)
+    req.csrfToken = () => signedToken(secret, opts.token).createSync()
 
     // store secret either in session or cookie
     if (req.session) {
@@ -79,9 +80,10 @@ class Csrf {
   }
 
   /**
-  * verifies a CSRF from `req.body.csrf` and verifies with the secret from
-  * `req.session.csrf` if available or from `csrf` cookie
-  * body-parser is required to obtain the token from the request body
+  * Obtains a token from a request using either `req.body.csrf`, `req.query.csrf`
+  * or `req.headers['x-csrf-token']` and verifies it with the secret from
+  * `req.session.csrf` if available or from the `csrf` cookie.
+  * `body-parser` is required to obtain the token from the request body.
   * Name of session key and cookie name can be changed via `opts.name`
   */
   verify (req, res, next) {
@@ -139,7 +141,7 @@ function getSecret (req, opts) {
   return {secret, cookie}
 }
 
-/*
+/**
 * @private
 */
 function setCookie (res, name, value, options) {
@@ -151,7 +153,7 @@ function setCookie (res, name, value, options) {
   res.setHeader('set-cookie', header)
 }
 
-/*
+/**
 * @private
 */
 function httpError (statusCode, message, code) {

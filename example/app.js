@@ -13,7 +13,7 @@ app.get('/form',
   (req, res) => {
     res.end(`
       <form action="/form" method="POST">
-        <input type="hidden" name="csrf" value="${res.locals.csrf}" >
+        <input type="hidden" name="csrf" value="${req.csrfToken()}" >
         <input type="text" name="text" value="some text"><br>
         <button>Submit</button>
       </form>

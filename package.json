@@ -23,7 +23,7 @@
     "url": "git+https://github.com/commenthol/signed-token-csrf.git"
   },
   "scripts": {
-    "all": "npm run lint && npm test",
+    "all": "npm run lint && npm test && npm pack",
     "clean": "rimraf coverage .nyc_output",
     "cover": "nyc --reporter=lcov --reporter=text npm test",
     "lint": "eslint '**/*.js'",
@@ -40,7 +40,6 @@
     "connect-chain-if": "^1.0.0",
     "cookie": "^0.3.1",
     "lodash.get": "^4.4.2",
-    "lodash.set": "^4.3.2",
     "signed-token": "^1.1.2"
   },
   "devDependencies": {

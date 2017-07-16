@@ -66,16 +66,15 @@ app.listen(3000)
 
 ### `create`
 
-creates a CSRF token and sets `res.locals.csrf` as well as the secret for
-signing in req.session.csrf if available or sets a csrf cookie.
-Name of session key and cookie name can be changed via opts.name
+Creates method `req.csrfToken()` to get CSRF token as well as the secret for 
+signing in `req.session.csrf` if available or sets a csrf cookie.
+Name of session key and cookie name can be changed via opts.name.
+Default name is `csrf`.
 
 
 ### `verify`
 
-verifies a CSRF from `req.body.csrf`, `req.query.csrf` or `req.headers['x-csrf-token']`
-and verifies with the secret from `req.session.csrf` if available or from
-csrf cookie.
+Obtains a token from a request using either `req.body.csrf`, `req.query.csrf` or `req.headers['x-csrf-token']` and verifies it with the secret from `req.session.csrf` if available or from the `csrf` cookie.
 `body-parser` is required to obtain the token from the request body.
 Name of session key and cookie name can be changed via `opts.name`
 

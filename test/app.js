@@ -3,19 +3,20 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const session = require('express-session')
 
-const final = (req, res) => {
-  res.body = Object.assign({session: req.session}, res.body, res.locals)
+const final = (name) => (req, res) => {
+  res.body = Object.assign({session: req.session}, res.body)
+  res.body[name] = req.csrfToken && req.csrfToken()
   res.json(res.body)
 }
 
-const finalError = (err, req, res, next) => {
+const finalError = (name) => (err, req, res, next) => {
   // console.log(err.stack)
   res.statusCode = err.statusCode || 500
   res.body = {
     error: err.message || http.STATUS_CODES[err.statusCode],
     code: err.code
   }
-  final(req, res)
+  final(name)(req, res)
 }
 
 /* eslint-disable */
@@ -25,7 +26,7 @@ const logger = (req, res, next) => {
 }
 /* eslint-enable */
 
-const appCookie = (csrf) => {
+const appCookie = (csrf, name = 'csrf') => {
   const app = express()
   app.use(
     bodyParser.json(),
@@ -34,12 +35,12 @@ const appCookie = (csrf) => {
   app.use('/',
     csrf.csrf
   )
-  app.use(final, finalError)
+  app.use(final(name), finalError(name))
 
   return app
 }
 
-const appSession = (csrf) => {
+const appSession = (csrf, name = 'csrf') => {
   const app = express()
   app.use(
     bodyParser.json(),
@@ -54,7 +55,7 @@ const appSession = (csrf) => {
     }),
     csrf.csrf
   )
-  app.use(final, finalError)
+  app.use(final(name), finalError(name))
 
   return app
 }
