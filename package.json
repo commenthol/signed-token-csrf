@@ -1,6 +1,6 @@
 {
   "name": "signed-token-csrf",
-  "version": "1.1.0-0",
+  "version": "1.1.0",
   "description": "CSRF connect middleware using signed tokens",
   "keywords": [
     "connect",
