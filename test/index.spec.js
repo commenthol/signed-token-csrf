@@ -3,7 +3,7 @@
 const assert = require('assert')
 const setCookieParser = require('set-cookie-parser')
 const request = require('supertest')
-const {appCookie, appSession} = require('./app')
+const {appCookie, appSession, appCookieXhr} = require('./app')
 const Csrf = require('..')
 
 const cookieOpts = {cookie: {secure: false}}
@@ -349,6 +349,70 @@ describe('#signed-token-csrf', function () {
         })
     })
   })
+
+  describe('cookieXhr', function () {
+    const csrf = new Csrf('ssshhh', cookieOpts)
+    const app = appCookieXhr(csrf)
+
+    it('should return csrf token', function () {
+      return request(app)
+        .get('/')
+        // .then(res => console.log(res.headers))
+        .expect(assertCsrf())
+        .expect(assertCsrfCookie())
+        .expect(200)
+    })
+
+    it('should verify xhr request', function () {
+      const agent = request.agent(app)
+      return agent
+        .get('/')
+        .expect(assertCsrf())
+        .expect(assertCsrfCookie())
+        .expect(200)
+        .then((res) => {
+          return agent
+            .post('/')
+            .type('json')
+            .send({})
+            .expect(200)
+        })
+    })
+
+    it('should fail with an invalid token', function () {
+      return request.agent(app)
+        .post('/')
+        .set('Cookie', `csrf=BvuSyrOlD1k1zoCVU5ZnIrSlephg8w-ep0Bu3jnFmkVjYNzX`)
+        .type('json')
+        .send()
+        .expect(403)
+    })
+
+    it('should fail with no token', function () {
+      return request.agent(app)
+        .post('/')
+        .expect(assertCsrfNoCookie())
+        .expect(403)
+    })
+
+    it('should ignoreMethods DELETE', function () {
+      const csrf = new Csrf('ssshhh', Object.assign({ignoreMethods: ['DELETE']}, cookieOpts))
+      const app = appCookieXhr(csrf)
+      const agent = request(app)
+      return agent
+        .get('/')
+        .expect(assertCsrf())
+        .expect(assertCsrfCookie())
+        .expect(200)
+        .then((res) => {
+          return agent
+            .delete('/')
+            .set('Cookie', 'csrf=bad')
+            .expect(assertCsrfNoCookie())
+            .expect(200)
+        })
+    })
+  })
 })
 
 function setCookieParse (res) {
@@ -359,24 +423,24 @@ function setCookieParse (res) {
 
 function assertCsrf (name = 'csrf') {
   return (res) => {
-    assert.equal(typeof res.body[name], 'string')
-    assert.equal(res.body[name].length, 48)
+    assert.strictEqual(typeof res.body[name], 'string')
+    assert.strictEqual(res.body[name].length, 48)
   }
 }
 
 function assertCsrfCookie (name = 'csrf') {
   return (res) => {
     const cookies = setCookieParse(res)
-    assert.equal(cookies[name].value.length, 48)
+    assert.strictEqual(cookies[name].value.length, 48)
     assert.ok(res.body[name] !== cookies[name].value)
     cookies[name].value = 'test'
-    assert.deepEqual(cookies[name], {
+    assert.deepStrictEqual(cookies[name], {
       name,
       value: 'test',
       path: '/',
       httpOnly: true,
       // secure: true,
-      samesite: 'Strict'
+      sameSite: 'Strict'
     })
   }
 }
