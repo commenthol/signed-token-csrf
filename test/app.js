@@ -2,6 +2,7 @@ const http = require('http')
 const bodyParser = require('body-parser')
 const express = require('express')
 const session = require('express-session')
+const cors = require('cors')
 
 const final = (name) => (req, res) => {
   res.body = Object.assign({session: req.session}, res.body)
@@ -22,6 +23,7 @@ const finalError = (name) => (err, req, res, next) => {
 /* eslint-disable */
 const logger = (req, res, next) => {
   console.log(req.method, req.url, req.headers, req.body, req.session)
+  res.on('finish', () => console.log(res.statusCode, res._headers))
   next()
 }
 /* eslint-enable */
@@ -60,7 +62,29 @@ const appSession = (csrf, name = 'csrf') => {
   return app
 }
 
+const appCookieXhr = (csrf, name = 'csrf') => {
+  const app = express()
+  app.use(cors())
+
+  app.use(
+    bodyParser.json(),
+    bodyParser.urlencoded({extended: false})
+  )
+  app.use('/',
+    // logger,
+    (req, res, next) => {
+      (req.method === 'GET')
+        ? csrf.create(req, res, next) // NOTE: Only set CRSF Token on login!
+        : csrf.verifyXhr(req, res, next)
+    }
+  )
+  app.use(final(name), finalError(name))
+
+  return app
+}
+
 module.exports = {
   appCookie,
-  appSession
+  appSession,
+  appCookieXhr
 }
