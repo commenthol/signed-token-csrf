@@ -3,10 +3,10 @@
 const assert = require('assert')
 const setCookieParser = require('set-cookie-parser')
 const request = require('supertest')
-const {appCookie, appSession, appCookieXhr} = require('./app')
+const { appCookie, appSession, appCookieXhr } = require('./app')
 const Csrf = require('..')
 
-const cookieOpts = {cookie: {secure: false}}
+const cookieOpts = { cookie: { secure: false } }
 
 describe('#signed-token-csrf', function () {
   describe('general', function () {
@@ -40,7 +40,7 @@ describe('#signed-token-csrf', function () {
           return agent
             .post('/')
             .type('form')
-            .send({csrf: res.body.csrf})
+            .send({ csrf: res.body.csrf })
             .expect(200)
         })
     })
@@ -78,7 +78,7 @@ describe('#signed-token-csrf', function () {
 
     it('should work with different name', function () {
       const name = 'state'
-      const csrf = new Csrf('ssshhh', Object.assign({name}, cookieOpts))
+      const csrf = new Csrf('ssshhh', Object.assign({ name }, cookieOpts))
       const app = appCookie(csrf, name)
       const agent = request.agent(app)
       return agent
@@ -91,7 +91,7 @@ describe('#signed-token-csrf', function () {
           return agent
             .post('/')
             .type('form')
-            .send({state: res.body.state})
+            .send({ state: res.body.state })
             .expect(200)
         })
     })
@@ -107,7 +107,7 @@ describe('#signed-token-csrf', function () {
           return agent
             .post('/')
             .type('json')
-            .send({csrf: 'oopsy'})
+            .send({ csrf: 'oopsy' })
             .expect(assertCsrf())
             .expect(assertCsrfNoCookie())
             .expect(403)
@@ -165,7 +165,7 @@ describe('#signed-token-csrf', function () {
     })
 
     it('should ignoreMethods DELETE', function () {
-      const csrf = new Csrf('ssshhh', Object.assign({ignoreMethods: ['DELETE']}, cookieOpts))
+      const csrf = new Csrf('ssshhh', Object.assign({ ignoreMethods: ['DELETE'] }, cookieOpts))
       const app = appCookie(csrf)
       const agent = request(app)
       return agent
@@ -206,7 +206,7 @@ describe('#signed-token-csrf', function () {
           return agent
             .post('/')
             .type('form')
-            .send({csrf: res.body.csrf})
+            .send({ csrf: res.body.csrf })
             .expect(200)
         })
     })
@@ -244,7 +244,7 @@ describe('#signed-token-csrf', function () {
 
     it('should work with different name', function () {
       const name = 'state'
-      const csrf = new Csrf('ssshhh', {name})
+      const csrf = new Csrf('ssshhh', { name })
       const app = appSession(csrf, name)
       const agent = request.agent(app)
       return agent
@@ -257,7 +257,7 @@ describe('#signed-token-csrf', function () {
           return agent
             .post('/')
             .type('form')
-            .send({state: res.body.state})
+            .send({ state: res.body.state })
             .expect(200)
         })
     })
@@ -273,7 +273,7 @@ describe('#signed-token-csrf', function () {
           return agent
             .post('/')
             .type('json')
-            .send({csrf: 'oopsy'})
+            .send({ csrf: 'oopsy' })
             .expect(assertCsrf())
             .expect(assertCsrfNoCookie())
             .expect(403)
@@ -331,7 +331,7 @@ describe('#signed-token-csrf', function () {
     })
 
     it('should ignoreMethods DELETE', function () {
-      const csrf = new Csrf('ssshhh', Object.assign({ignoreMethods: ['DELETE']}, cookieOpts))
+      const csrf = new Csrf('ssshhh', Object.assign({ ignoreMethods: ['DELETE'] }, cookieOpts))
       const app = appSession(csrf)
       const agent = request(app)
       return agent
@@ -382,7 +382,7 @@ describe('#signed-token-csrf', function () {
     it('should fail with an invalid token', function () {
       return request.agent(app)
         .post('/')
-        .set('Cookie', `csrf=BvuSyrOlD1k1zoCVU5ZnIrSlephg8w-ep0Bu3jnFmkVjYNzX`)
+        .set('Cookie', 'csrf=BvuSyrOlD1k1zoCVU5ZnIrSlephg8w-ep0Bu3jnFmkVjYNzX')
         .type('json')
         .send()
         .expect(403)
@@ -396,7 +396,7 @@ describe('#signed-token-csrf', function () {
     })
 
     it('should ignoreMethods DELETE', function () {
-      const csrf = new Csrf('ssshhh', Object.assign({ignoreMethods: ['DELETE']}, cookieOpts))
+      const csrf = new Csrf('ssshhh', Object.assign({ ignoreMethods: ['DELETE'] }, cookieOpts))
       const app = appCookieXhr(csrf)
       const agent = request(app)
       return agent
@@ -416,7 +416,7 @@ describe('#signed-token-csrf', function () {
 })
 
 function setCookieParse (res) {
-  let cookies = {}
+  const cookies = {}
   setCookieParser.parse(res).forEach(p => (cookies[p.name] = p))
   return cookies
 }

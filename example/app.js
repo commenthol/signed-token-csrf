@@ -4,7 +4,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const app = express()
-const csrf = new Csrf('csrfSecret', {cookie: {secure: false}})
+const csrf = new Csrf('csrfSecret', { cookie: { secure: false } })
 
 const httpError = (status, message) => {
   const err = new Error(message)
@@ -46,7 +46,7 @@ const htmlXhr = () => html(`
 <script src='xhr.js'></script>`)
 
 // works with or without a session - comment line
-app.use(session({secret: 'sessionSecret', resave: false, saveUninitialized: true}))
+app.use(session({ secret: 'sessionSecret', resave: false, saveUninitialized: true }))
 
 app.use(csrf.checkOrigin)
 
@@ -55,7 +55,7 @@ app.get('/form',
   (req, res) => res.end(htmlFormGet(req))
 )
 app.post('/form',
-  bodyParser.urlencoded({extended: false}),
+  bodyParser.urlencoded({ extended: false }),
   csrf.verify,
   (req, res) => res.end(htmlFormPost(req))
 )
@@ -68,7 +68,7 @@ app.get('/api/login',
     next(err)
   },
   csrf.create,
-  (req, res) => res.json({token: 'your-auth-token'})
+  (req, res) => res.json({ token: 'your-auth-token' })
 )
 app.use('/api',
   csrf.verifyXhr,
@@ -89,7 +89,7 @@ app.use(express.static(__dirname))
 app.use((err, req, res, next) => {
   res.statusCode = err.status || 500
   if (/json/i.test(req.headers.accept)) {
-    res.json({error: err.message})
+    res.json({ error: err.message })
   } else {
     res.end(html(`<pre>${err.stack}</pre>`))
   }

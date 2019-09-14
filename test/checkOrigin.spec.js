@@ -3,7 +3,7 @@
 const assert = require('assert')
 const Csrf = require('..')
 
-const cookieOpts = {cookie: {secure: false}}
+const cookieOpts = { cookie: { secure: false } }
 
 describe('#signed-token-csrf', function () {
   describe('checkOrigin', function () {
@@ -26,8 +26,8 @@ describe('#signed-token-csrf', function () {
       const req = {
         method: 'GET',
         headers: {
-          'host': 'aa.aa:8443',
-          'referer': 'https://aa.aa:8443'
+          host: 'aa.aa:8443',
+          referer: 'https://aa.aa:8443'
         }
       }
       const res = {}
@@ -40,8 +40,8 @@ describe('#signed-token-csrf', function () {
       const req = {
         method: 'GET',
         headers: {
-          'host': 'aa.aa:8443',
-          'origin': 'https://aa.aa:8443'
+          host: 'aa.aa:8443',
+          origin: 'https://aa.aa:8443'
         }
       }
       const res = {}
@@ -51,10 +51,11 @@ describe('#signed-token-csrf', function () {
       })
     })
     it('shall pass on matching origin and x-forwarded-host', function (done) {
-      const req = { method: 'GET',
+      const req = {
+        method: 'GET',
         headers: {
           'x-forwarded-host': 'aa.aa',
-          'origin': 'https://aa.aa:8443'
+          origin: 'https://aa.aa:8443'
         }
       }
       const res = {}
@@ -64,12 +65,12 @@ describe('#signed-token-csrf', function () {
       })
     })
     it('shall pass on matching origin and options.host', function (done) {
-      const csrf = new Csrf('ssshhh', Object.assign({host: 'aa.aa'}, cookieOpts))
+      const csrf = new Csrf('ssshhh', Object.assign({ host: 'aa.aa' }, cookieOpts))
       const req = {
         method: 'GET',
         headers: {
-          'host': 'bb.bb',
-          'origin': 'https://aa.aa:8443'
+          host: 'bb.bb',
+          origin: 'https://aa.aa:8443'
         }
       }
       const res = {}

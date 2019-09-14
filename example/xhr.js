@@ -3,7 +3,7 @@
 var token
 
 function xhr (url, opts, cb) {
-  opts = opts || {method: 'GET'}
+  opts = opts || { method: 'GET' }
   opts.headers = opts.headers || {}
   opts.headers.Accept = 'application/json'
   opts.headers['X-Requested-With'] = 'XMLHttpRequest'
@@ -26,7 +26,7 @@ function xhr (url, opts, cb) {
 
 function test (method, url) {
   const pre = document.getElementById('out')
-  xhr(url, {method: method}, function (_err, res) {
+  xhr(url, { method: method }, function (_err, res) {
     pre.innerText += [method, url, res.status, JSON.stringify(res.body), '\n'].join(' ')
   })
 }

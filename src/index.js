@@ -31,11 +31,11 @@ class Csrf {
     if (!secret) throw new TypeError('need a secret')
 
     this.opts = Object.assign(
-      {name: 'csrf'},
+      { name: 'csrf' },
       opts,
       {
-        cookie: Object.assign({path: '/', httpOnly: true, secure: true, sameSite: true}, opts.cookie),
-        token: Object.assign({digest: 'sha256', commonlen: 24, tokenlen: 48}, opts.token),
+        cookie: Object.assign({ path: '/', httpOnly: true, secure: true, sameSite: true }, opts.cookie),
+        token: Object.assign({ digest: 'sha256', commonlen: 24, tokenlen: 48 }, opts.token),
         ignoreMethods: ['HEAD', 'OPTIONS'].concat(opts.ignoreMethods)
       }
     )
@@ -55,10 +55,10 @@ class Csrf {
    * For XHR Requests `X-Requested-With: XMLHttpRequest` is checked only
    */
   checkOrigin (req, res, next) {
-    const {opts} = this || {}
+    const { opts } = this || {}
     if (this._ignoreMethods(req, next)) return
 
-    const {headers} = req || {}
+    const { headers } = req || {}
     const origin = headers.origin || headers.referer || headers.referrer || ''
     const host = opts.host || headers['x-forwarded-host'] || headers.host || 'host'
     const isFromOrigin = (origin.indexOf(host) > 6)
@@ -78,10 +78,10 @@ class Csrf {
    * Default name is `csrf`.
    */
   create (req, res, next) {
-    const {opts} = this || {}
+    const { opts } = this || {}
     if (this._ignoreMethods(req, next)) return
 
-    let {secret, cookie} = getSecret(req, opts)
+    let { secret, cookie } = getSecret(req, opts)
     if (secret) {
       const vSecret = this._signSecret.verifySync(secret)
       if (!vSecret) {
@@ -112,7 +112,7 @@ class Csrf {
    * Name of session key and cookie name can be changed via `opts.name`
    */
   verify (req, res, next) {
-    const {opts} = this || {}
+    const { opts } = this || {}
     if (this._ignoreMethods(req, next)) return
 
     const token =
@@ -121,7 +121,7 @@ class Csrf {
       _get(req, ['query', opts.name]) ||
       _get(req, ['headers', `x-${opts.name}-token`])
 
-    const {secret} = getSecret(req, opts)
+    const { secret } = getSecret(req, opts)
 
     if (!token || !secret) {
       next(httpError(403, 'misconfigured csrf', 'ECSRFMISCONFIG'))
@@ -145,10 +145,10 @@ class Csrf {
    * @see http://www.redotheweb.com/2015/11/09/api-security.html
    */
   verifyXhr (req, res, next) {
-    const {opts} = this || {}
+    const { opts } = this || {}
     if (this._ignoreMethods(req, next)) return
 
-    const {secret} = getSecret(req, opts)
+    const { secret } = getSecret(req, opts)
     if (!secret) {
       next(httpError(403, 'misconfigured csrf', 'ECSRFMISCONFIG'))
       return
@@ -196,7 +196,7 @@ function getSecret (req, opts) {
   const cookies = req.cookies || Cookie.parse(_get(req, 'headers.cookie', '')) || {}
   const cookie = cookies[opts.name]
   const secret = _get(req, ['session', opts.name], cookie)
-  return {secret, cookie}
+  return { secret, cookie }
 }
 
 /**

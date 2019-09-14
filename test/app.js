@@ -5,7 +5,7 @@ const session = require('express-session')
 const cors = require('cors')
 
 const final = (name) => (req, res) => {
-  res.body = Object.assign({session: req.session}, res.body)
+  res.body = Object.assign({ session: req.session }, res.body)
   res.body[name] = req.csrfToken && req.csrfToken()
   res.json(res.body)
 }
@@ -32,7 +32,7 @@ const appCookie = (csrf, name = 'csrf') => {
   const app = express()
   app.use(
     bodyParser.json(),
-    bodyParser.urlencoded({extended: false})
+    bodyParser.urlencoded({ extended: false })
   )
   app.use('/',
     csrf.csrf
@@ -46,7 +46,7 @@ const appSession = (csrf, name = 'csrf') => {
   const app = express()
   app.use(
     bodyParser.json(),
-    bodyParser.urlencoded({extended: false})
+    bodyParser.urlencoded({ extended: false })
   )
   app.use('/',
     session({
@@ -68,7 +68,7 @@ const appCookieXhr = (csrf, name = 'csrf') => {
 
   app.use(
     bodyParser.json(),
-    bodyParser.urlencoded({extended: false})
+    bodyParser.urlencoded({ extended: false })
   )
   app.use('/',
     // logger,
