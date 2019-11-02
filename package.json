@@ -37,7 +37,7 @@
     ]
   },
   "dependencies": {
-    "asyncc-promise": "^1.1.0",
+    "asyncc-promise": "^1.1.1",
     "compare-timing-safe": "^1.0.0",
     "connect-chain-if": "^1.0.0",
     "cookie": "^0.4.0",
@@ -46,15 +46,15 @@
   },
   "devDependencies": {
     "cors": "^2.8.5",
-    "eslint": "^6.4.0",
+    "eslint": "^6.6.0",
     "eslint-config-standard": "^14.1.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "express": "^4.17.1",
-    "express-session": "^1.16.2",
-    "mocha": "^6.2.0",
+    "express-session": "^1.17.0",
+    "mocha": "^6.2.2",
     "nyc": "^14.1.1",
     "set-cookie-parser": "^2.4.0",
     "supertest": "^4.0.2"
