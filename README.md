@@ -31,13 +31,13 @@
 
 | parameter              | type   | description |
 | ---------------------- | ------ | ----------- |
-| `secret`               | String | a server side secret |
+| `secret`               | string | a server side secret |
 | `[opts]`               | Object | _optional:_ options |
-| `[opts.name=csrf]`     | String | _optional:_ header &amp; cookie name of token |
+| `[opts.name=csrf]`     | string | _optional:_ header &amp; cookie name of token |
 | `[opts.cookie]`        | Object | _optional:_ cookie options - defaults to  `{path: '/', httpOnly: true, secure: true, sameSite: true}` |
 | `[opts.token]`         | Object | _optional:_ signedToken options - defaults to `{digest: 'sha256', commonlen: 24, tokenlen: 48}` |
-| `[opts.ignoreMethods]` | Array&lt;String&gt; | _optional:_ ignore methods `['HEAD', 'OPTIONS']` |
-| `[opts.host]`          | String | _optional:_ hostname of service to check against |
+| `[opts.ignoreMethods]` | Array&lt;string&gt; | _optional:_ ignore methods `['HEAD', 'OPTIONS']` |
+| `[opts.host]`          | string | _optional:_ hostname of service to check against |
 
 ### create
 

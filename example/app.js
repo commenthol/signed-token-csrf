@@ -1,12 +1,14 @@
 // const Csrf = require('signed-token-csrf')
 const Csrf = require('..')
 const express = require('express')
-const bodyParser = require('body-parser')
 const session = require('express-session')
 const app = express()
 const csrf = new Csrf('csrfSecret', { cookie: { secure: false } })
 
+/** @typedef {import('../src/types').HttpError} HttpError */
+
 const httpError = (status, message) => {
+  /** @type {HttpError} */
   const err = new Error(message)
   err.status = status
   return err
@@ -55,7 +57,7 @@ app.get('/form',
   (req, res) => res.end(htmlFormGet(req))
 )
 app.post('/form',
-  bodyParser.urlencoded({ extended: false }),
+  express.urlencoded({ extended: false }),
   csrf.verify,
   (req, res) => res.end(htmlFormPost(req))
 )
@@ -95,4 +97,6 @@ app.use((err, req, res, next) => {
   }
 })
 
-app.listen(3000)
+const server = app.listen(3000, () => {
+  console.log(server.address())
+})

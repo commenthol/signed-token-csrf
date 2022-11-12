@@ -2,7 +2,10 @@ const Cookie = require('cookie')
 const signedToken = require('signed-token')
 const timingSafeEqual = require('compare-timing-safe')
 const chain = require('connect-chain-if')
-const _get = require('lodash.get')
+
+/** @typedef {import('./types').RequestCsrf} Request */
+/** @typedef {import('./types').ResponseCsrf} Response */
+/** @typedef {import('./types').HttpError} HttpError */
 
 /**
  * A CSRF connect middleware which creates and verifies csrf tokens
@@ -19,40 +22,38 @@ const _get = require('lodash.get')
  */
 class Csrf {
   /**
-   * @param {String} secret - a server side secret
-   * @param {Object} [opts] - options
-   * @param {String} [opts.name=csrf] - header & cookie name of token
-   * @param {Object} [opts.cookie] - cookie options - defaults to `{path: '/', httpOnly: true, secure: true, sameSite: true}`
-   * @param {Object} [opts.token] - signedToken options - defaults to `{digest: 'sha256', commonlen: 24, tokenlen: 48}`
-   * @param {Array|String} [opts.ignoreMethods] - ignore methods `['HEAD', 'OPTIONS']`
-   * @param {String} [opts.host] - hostname of service to check against
+   * @param {string} secret - a server side secret
+   * @param {object} [opts] - options
+   * @param {string} [opts.name=csrf] - header & cookie name of token
+   * @param {object} [opts.cookie] - cookie options - defaults to `{path: '/', httpOnly: true, secure: true, sameSite: true}`
+   * @param {object} [opts.token] - signedToken options - defaults to `{digest: 'sha256', commonlen: 24, tokenlen: 48}`
+   * @param {string[]} [opts.ignoreMethods] - ignore methods `['HEAD', 'OPTIONS']`
+   * @param {string} [opts.host] - hostname of service to check against
    */
   constructor (secret, opts = {}) {
     if (!secret) throw new TypeError('need a secret')
 
-    this.opts = Object.assign(
-      { name: 'csrf' },
-      opts,
-      {
-        cookie: Object.assign({ path: '/', httpOnly: true, secure: true, sameSite: true }, opts.cookie),
-        token: Object.assign({ digest: 'sha256', commonlen: 24, tokenlen: 48 }, opts.token),
-        ignoreMethods: ['HEAD', 'OPTIONS'].concat(opts.ignoreMethods)
-      }
-    )
+    this.opts = {
+      name: 'csrf',
+      ...opts,
+      cookie: { path: '/', httpOnly: true, secure: true, sameSite: true, ...opts.cookie },
+      token: { digest: 'sha256', commonlen: 24, tokenlen: 48, ...opts.token },
+      ignoreMethods: ['HEAD', 'OPTIONS'].concat(opts.ignoreMethods || [])
+    }
 
-    Object.assign(this, {
-      _signSecret: signedToken(secret, this.opts.token),
-      checkOrigin: this.checkOrigin.bind(this),
-      create: this.create.bind(this),
-      verify: this.verify.bind(this),
-      verifyXhr: this.verifyXhr.bind(this),
-      csrf: this.csrf.bind(this)
+    this._signSecret = signedToken(secret, this.opts.token)
+
+    ;['checkOrigin', 'create', 'verify', 'verifyXhr', 'csrf'].forEach(prop => {
+      this[prop] = this[prop].bind(this)
     })
   }
 
   /**
    * Checks origin/ referer of request against `opts.hostname`, `X-Forwarded-Host` or `Host` header.
    * For XHR Requests `X-Requested-With: XMLHttpRequest` is checked only
+   * @param {Request} req
+   * @param {Response} res
+   * @param {Function} next
    */
   checkOrigin (req, res, next) {
     const { opts } = this || {}
@@ -60,7 +61,7 @@ class Csrf {
 
     const { headers } = req || {}
     const origin = headers.origin || headers.referer || headers.referrer || ''
-    const host = opts.host || headers['x-forwarded-host'] || headers.host || 'host'
+    const host = String(opts.host || headers['x-forwarded-host'] || headers.host || 'host')
     const isFromOrigin = (origin.indexOf(host) > 6)
     const isXMLHttpRequest = (headers['x-requested-with'] === 'XMLHttpRequest')
 
@@ -76,6 +77,9 @@ class Csrf {
    * signing in `req.session.csrf` if available or sets a `csrf` cookie.
    * Name of session key and cookie name can be changed via `opts.name`.
    * Default name is `csrf`.
+   * @param {Request} req
+   * @param {Response} res
+   * @param {Function} next
    */
   create (req, res, next) {
     const { opts } = this || {}
@@ -117,9 +121,9 @@ class Csrf {
 
     const token =
       req.csrf || // in case you like to use a custom middleware upfront
-      _get(req, ['body', opts.name]) || // needs bodyParser
-      _get(req, ['query', opts.name]) ||
-      _get(req, ['headers', `x-${opts.name}-token`])
+      req.body?.[opts.name] || // needs bodyParser
+      req.query?.[opts.name] ||
+      req.headers?.[`x-${opts.name}-token`]
 
     const { secret } = getSecret(req, opts)
 
@@ -143,6 +147,9 @@ class Csrf {
    * Verifies the cookie only; For token based xhr requests
    * Requires `XMLHttpRequest.withCredentials = true`
    * @see http://www.redotheweb.com/2015/11/09/api-security.html
+   * @param {Request} req
+   * @param {Response} res
+   * @param {Function} next
    */
   verifyXhr (req, res, next) {
     const { opts } = this || {}
@@ -164,6 +171,9 @@ class Csrf {
 
   /**
    * Express middleware which chains `create` and `verify`
+   * @param {Request} req
+   * @param {Response} res
+   * @param {Function} next
    */
   csrf (req, res, next) {
     if (this._ignoreMethods(req, next)) return
@@ -177,6 +187,8 @@ class Csrf {
 
   /**
    * @private
+   * @param {Request} req
+   * @param {Function} next
    */
   _ignoreMethods (req, next) {
     if (this.opts.ignoreMethods.indexOf(req.method) !== -1) {
@@ -191,11 +203,14 @@ module.exports = Csrf
 /**
  * get secret from session or cookie
  * @private
+ * @param {Request} req
+ * @param {object} opts
+ * @param {object} opts.name
  */
 function getSecret (req, opts) {
-  const cookies = req.cookies || Cookie.parse(_get(req, 'headers.cookie', '')) || {}
+  const cookies = req.cookies || Cookie.parse(req.headers?.cookie || '') || {}
   const cookie = cookies[opts.name]
-  const secret = _get(req, ['session', opts.name], cookie)
+  const secret = req.session?.[opts.name] || cookie
   return { secret, cookie }
 }
 
@@ -213,8 +228,13 @@ function setCookie (res, name, value, options) {
 
 /**
  * @private
+ * @param {number} statusCode
+ * @param {string} message
+ * @param {string} [code]
+ * @return {HttpError}
  */
 function httpError (statusCode, message, code) {
+  /** @type {HttpError} */
   const err = new Error(message)
   err.status = err.statusCode = statusCode || 500
   err.code = code

@@ -1,6 +1,6 @@
 {
   "name": "signed-token-csrf",
-  "version": "1.1.2",
+  "version": "2.0.0-0",
   "description": "CSRF connect middleware using signed tokens",
   "keywords": [
     "connect",
@@ -17,49 +17,61 @@
   },
   "license": "Unlicense",
   "author": "commenthol <commenthol@gmail.com>",
-  "main": "src",
+  "type": "commonjs",
+  "main": "./src/index.js",
   "directories": {
     "example": "example",
     "test": "test"
   },
+  "files": [
+    "src",
+    "types"
+  ],
   "scripts": {
-    "all": "npm run lint && npm test && npm pack",
+    "all": "npm run ci",
+    "ci": "npm run lint && npm run coverage && npm run types",
     "clean": "rimraf coverage .nyc_output",
-    "cover": "nyc --reporter=lcov --reporter=text npm test",
+    "coverage": "c8 npm test",
     "doc": "markedpp -i README.md -o README.md --githubid",
-    "lint": "eslint '**/*.js'",
-    "prepublishOnly": "npm run test && npm run lint",
-    "test": "mocha"
+    "example": "node example/app.js",
+    "lint": "eslint --ext .js .",
+    "test": "mocha",
+    "types": "rm -r types; tsc --emitDeclarationOnly true --noEmitOnError && cp ./src/*.d.ts ./types"
   },
   "eslintConfig": {
     "extends": [
       "standard"
     ]
   },
+  "mocha": {
+    "checkLeaks": true,
+    "colors": true
+  },
   "dependencies": {
-    "asyncc-promise": "^1.1.1",
-    "compare-timing-safe": "^1.0.0",
+    "compare-timing-safe": "^2.1.1",
     "connect-chain-if": "^1.0.0",
-    "cookie": "^0.4.0",
-    "lodash.get": "^4.4.2",
-    "signed-token": "^1.1.2"
+    "cookie": "^0.5.0",
+    "signed-token": "^2.0.0"
   },
   "devDependencies": {
+    "@types/express-serve-static-core": "^4.17.31",
+    "@types/node": "^18.11.9",
+    "c8": "^7.12.0",
     "cors": "^2.8.5",
-    "eslint": "^6.6.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "express": "^4.17.1",
-    "express-session": "^1.17.0",
-    "mocha": "^6.2.2",
-    "nyc": "^14.1.1",
-    "set-cookie-parser": "^2.4.0",
-    "supertest": "^4.0.2"
+    "eslint": "^8.27.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.5.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mocha": "^10.1.0",
+    "rimraf": "^3.0.2",
+    "set-cookie-parser": "^2.5.1",
+    "supertest": "^6.3.1",
+    "typescript": "^4.8.4"
   },
-  "engines": {
-    "node": ">= 6.0.0"
+  "engine": {
+    "node": ">=12.0.0"
   }
 }
