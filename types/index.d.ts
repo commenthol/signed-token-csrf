@@ -57,7 +57,7 @@ declare class Csrf {
      * @param {Response} res
      * @param {Function} next
      */
-    create(req: Request, res: Response, next: Function): void;
+    create(req: Request, res: Response, next: Function): Promise<void>;
     /**
      * Obtains a token from a request using either `req.body.csrf`, `req.query.csrf`
      * or `req.headers['x-csrf-token']` and verifies it with the secret from

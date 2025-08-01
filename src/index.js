@@ -90,31 +90,39 @@ class Csrf {
    * @param {Response} res
    * @param {Function} next
    */
-  create(req, res, next) {
-    const { opts } = this || {}
-    if (this._ignoreMethods(req, next)) return
+  async create(req, res, next) {
+    try {
+      const { opts } = this || {}
+      if (this._ignoreMethods(req, next)) return
 
-    let { secret, cookie } = getSecret(req, opts)
-    if (secret) {
-      const vSecret = this._signSecret.verifySync(secret)
-      if (!vSecret) {
-        secret = null
-        cookie = null
+      let { secret, cookie } = getSecret(req, opts)
+      if (secret) {
+        const vSecret = this._signSecret.verifySync(secret)
+        if (!vSecret) {
+          secret = null
+          cookie = null
+        }
       }
-    }
-    if (!secret) {
-      secret = this._signSecret.createSync()
-    }
+      if (!secret) {
+        secret = await this._signSecret.create()
+      }
 
-    req.csrfToken = () => signedToken(secret, opts.token).createSync()
+      // store secret either in session or cookie
+      if (req.session) {
+        req.session[opts.name] = secret
+      } else if (!cookie) {
+        setCookie(res, opts.name, secret, opts.cookie)
+      }
 
-    // store secret either in session or cookie
-    if (req.session) {
-      req.session[opts.name] = secret
-    } else if (!cookie) {
-      setCookie(res, opts.name, secret, opts.cookie)
+      // create the CSRF Token
+      const csrfToken = await signedToken(secret, opts.token).create()
+      req.csrfToken = () => csrfToken
+
+      next()
+      /* c8 ignore next 3 */
+    } catch (err) {
+      next(err)
     }
-    next()
   }
 
   /**
