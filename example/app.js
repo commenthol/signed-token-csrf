@@ -3,7 +3,9 @@ const Csrf = require('..')
 const express = require('express')
 const session = require('express-session')
 const app = express()
-const csrf = new Csrf('csrfSecret', { cookie: { secure: false } })
+const csrf = new Csrf('csrfSecret', {
+  cookie: { secure: false }
+})
 
 /** @typedef {import('../src/types').HttpError} HttpError */
 
@@ -15,12 +17,14 @@ const httpError = (status, message) => {
 }
 
 const html = (body) => `<!doctype html>
-<html><head><meta charset="utf-8"></head><body>
-<p>
+<html><head><meta charset="utf-8">
+<style>nav {margin: 1em 0; padding: 0.5em 0; border-bottom: 1px solid #ccc;}</style>
+</head><body>
+<nav>
   <a href="/form">form</a>
   <a href="/xhr">xhr</a>
   <a href="/destroy">destroy cookies</a>
-</p>
+</nav>
 ${body}
 </body></html>`
 
@@ -88,11 +92,11 @@ app.use('/destroy', (req, res) => {
   res.clearCookie('connect.sid')
   res.end(html(''))
 })
-app.use('/$', (req, res) => {
-  res.end(html(''))
-})
-
 app.use(express.static(__dirname))
+
+app.use('/', (req, res) => {
+  res.redirect('/form')
+})
 
 app.use((err, req, res, _next) => {
   res.statusCode = err.status || 500
