@@ -2,7 +2,7 @@
 
 let token
 
-function xhr (url, opts, cb) {
+function xhr(url, opts, cb) {
   opts = opts || { method: 'GET' }
   opts.headers = opts.headers || {}
   opts.headers.Accept = 'application/json'
@@ -26,10 +26,16 @@ function xhr (url, opts, cb) {
   req.send(opts.body)
 }
 
-function test (method, url) {
+function test(method, url) {
   const pre = document.getElementById('out')
   xhr(url, { method }, function (_err, res) {
     if (!pre) return
-    pre.innerText += [method, url, res.status, JSON.stringify(res.body), '\n'].join(' ')
+    pre.innerText += [
+      method,
+      url,
+      res.status,
+      JSON.stringify(res.body),
+      '\n'
+    ].join(' ')
   })
 }

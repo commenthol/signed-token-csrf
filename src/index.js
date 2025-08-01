@@ -3,9 +3,9 @@ const signedToken = require('signed-token')
 const timingSafeEqual = require('compare-timing-safe')
 const chain = require('connect-chain-if')
 
-/** @typedef {import('./types').RequestCsrf} Request */
-/** @typedef {import('./types').ResponseCsrf} Response */
-/** @typedef {import('./types').HttpError} HttpError */
+/** @typedef {import('./types.js').RequestCsrf} Request */
+/** @typedef {import('./types.js').ResponseCsrf} Response */
+/** @typedef {import('./types.js').HttpError} HttpError */
 
 /**
  * A CSRF connect middleware which creates and verifies csrf tokens
@@ -30,22 +30,29 @@ class Csrf {
    * @param {string[]} [opts.ignoreMethods] - ignore methods `['HEAD', 'OPTIONS']`
    * @param {string} [opts.host] - hostname of service to check against
    */
-  constructor (secret, opts = {}) {
+  constructor(secret, opts = {}) {
     if (!secret) throw new TypeError('need a secret')
 
     this.opts = {
       name: 'csrf',
       ...opts,
-      cookie: { path: '/', httpOnly: true, secure: true, sameSite: true, ...opts.cookie },
+      cookie: {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: true,
+        ...opts.cookie
+      },
       token: { digest: 'sha256', commonlen: 24, tokenlen: 48, ...opts.token },
       ignoreMethods: ['HEAD', 'OPTIONS'].concat(opts.ignoreMethods || [])
     }
 
     this._signSecret = signedToken(secret, this.opts.token)
-
-    ;['checkOrigin', 'create', 'verify', 'verifyXhr', 'csrf'].forEach(prop => {
-      this[prop] = this[prop].bind(this)
-    })
+    ;['checkOrigin', 'create', 'verify', 'verifyXhr', 'csrf'].forEach(
+      (prop) => {
+        this[prop] = this[prop].bind(this)
+      }
+    )
   }
 
   /**
@@ -55,15 +62,17 @@ class Csrf {
    * @param {Response} res
    * @param {Function} next
    */
-  checkOrigin (req, res, next) {
+  checkOrigin(req, res, next) {
     const { opts } = this || {}
     if (this._ignoreMethods(req, next)) return
 
     const { headers } = req || {}
     const origin = headers.origin || headers.referer || headers.referrer || ''
-    const host = String(opts.host || headers['x-forwarded-host'] || headers.host || 'host')
-    const isFromOrigin = (origin.indexOf(host) > 6)
-    const isXMLHttpRequest = (headers['x-requested-with'] === 'XMLHttpRequest')
+    const host = String(
+      opts.host || headers['x-forwarded-host'] || headers.host || 'host'
+    )
+    const isFromOrigin = origin.indexOf(host) > 6
+    const isXMLHttpRequest = headers['x-requested-with'] === 'XMLHttpRequest'
 
     if (isXMLHttpRequest || isFromOrigin || !origin) {
       next()
@@ -81,7 +90,7 @@ class Csrf {
    * @param {Response} res
    * @param {Function} next
    */
-  create (req, res, next) {
+  create(req, res, next) {
     const { opts } = this || {}
     if (this._ignoreMethods(req, next)) return
 
@@ -115,7 +124,7 @@ class Csrf {
    * `body-parser` is required to obtain the token from the request body.
    * Name of session key and cookie name can be changed via `opts.name`
    */
-  verify (req, res, next) {
+  verify(req, res, next) {
     const { opts } = this || {}
     if (this._ignoreMethods(req, next)) return
 
@@ -133,7 +142,8 @@ class Csrf {
     }
 
     const vSecret = this._signSecret.verifySync(secret)
-    const vToken = signedToken(secret, opts.token).verifySync(token) ||
+    const vToken =
+      signedToken(secret, opts.token).verifySync(token) ||
       Math.random().toString()
 
     if (!vSecret || !timingSafeEqual(token, vToken)) {
@@ -151,7 +161,7 @@ class Csrf {
    * @param {Response} res
    * @param {Function} next
    */
-  verifyXhr (req, res, next) {
+  verifyXhr(req, res, next) {
     const { opts } = this || {}
     if (this._ignoreMethods(req, next)) return
 
@@ -175,14 +185,14 @@ class Csrf {
    * @param {Response} res
    * @param {Function} next
    */
-  csrf (req, res, next) {
+  csrf(req, res, next) {
     if (this._ignoreMethods(req, next)) return
 
-    chain.if(
-      req.method === 'GET',
-      this.create,
-      [this.create, this.verify]
-    )(req, res, next)
+    chain.if(req.method === 'GET', this.create, [this.create, this.verify])(
+      req,
+      res,
+      next
+    )
   }
 
   /**
@@ -190,7 +200,7 @@ class Csrf {
    * @param {Request} req
    * @param {Function} next
    */
-  _ignoreMethods (req, next) {
+  _ignoreMethods(req, next) {
     if (this.opts.ignoreMethods.indexOf(req.method) !== -1) {
       next()
       return true
@@ -207,7 +217,7 @@ module.exports = Csrf
  * @param {object} opts
  * @param {object} opts.name
  */
-function getSecret (req, opts) {
+function getSecret(req, opts) {
   const cookies = req.cookies || Cookie.parse(req.headers?.cookie || '') || {}
   const cookie = cookies[opts.name]
   const secret = req.session?.[opts.name] || cookie
@@ -217,12 +227,10 @@ function getSecret (req, opts) {
 /**
  * @private
  */
-function setCookie (res, name, value, options) {
+function setCookie(res, name, value, options) {
   const data = Cookie.serialize(name, value, options)
   const curr = res.getHeader('set-cookie') || []
-  const header = Array.isArray(curr)
-    ? curr.concat(data)
-    : [curr, data]
+  const header = Array.isArray(curr) ? curr.concat(data) : [curr, data]
   res.setHeader('set-cookie', header)
 }
 
@@ -233,7 +241,7 @@ function setCookie (res, name, value, options) {
  * @param {string} [code]
  * @return {HttpError}
  */
-function httpError (statusCode, message, code) {
+function httpError(statusCode, message, code) {
   /** @type {HttpError} */
   const err = new Error(message)
   err.status = err.statusCode = statusCode || 500

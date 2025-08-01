@@ -7,19 +7,19 @@
 
 <!-- !toc (minlevel=2) -->
 
-* [API](#api)
-  * [new Csrf(secret, [opts])](#new-csrfsecret-opts)
-  * [create](#create)
-  * [verify](#verify)
-  * [verifyXhr](#verifyxhr)
-  * [csrf](#csrf)
-* [Example](#example)
-  * [Forms](#forms)
-  * [XHR](#xhr)
-* [Installation](#installation)
-* [Tests](#tests)
-* [License](#license)
-* [References](#references)
+- [API](#api)
+  - [new Csrf(secret, [opts])](#new-csrfsecret-opts)
+  - [create](#create)
+  - [verify](#verify)
+  - [verifyXhr](#verifyxhr)
+  - [csrf](#csrf)
+- [Example](#example)
+  - [Forms](#forms)
+  - [XHR](#xhr)
+- [Installation](#installation)
+- [Tests](#tests)
+- [License](#license)
+- [References](#references)
 
 <!-- toc! -->
 
@@ -29,15 +29,15 @@
 
 **Parameters**
 
-| parameter              | type   | description |
-| ---------------------- | ------ | ----------- |
-| `secret`               | string | a server side secret |
-| `[opts]`               | Object | _optional:_ options |
-| `[opts.name=csrf]`     | string | _optional:_ header &amp; cookie name of token |
-| `[opts.cookie]`        | Object | _optional:_ cookie options - defaults to  `{path: '/', httpOnly: true, secure: true, sameSite: true}` |
-| `[opts.token]`         | Object | _optional:_ signedToken options - defaults to `{digest: 'sha256', commonlen: 24, tokenlen: 48}` |
-| `[opts.ignoreMethods]` | Array&lt;string&gt; | _optional:_ ignore methods `['HEAD', 'OPTIONS']` |
-| `[opts.host]`          | string | _optional:_ hostname of service to check against |
+| parameter              | type                | description                                                                                          |
+| ---------------------- | ------------------- | ---------------------------------------------------------------------------------------------------- |
+| `secret`               | string              | a server side secret                                                                                 |
+| `[opts]`               | Object              | _optional:_ options                                                                                  |
+| `[opts.name=csrf]`     | string              | _optional:_ header &amp; cookie name of token                                                        |
+| `[opts.cookie]`        | Object              | _optional:_ cookie options - defaults to `{path: '/', httpOnly: true, secure: true, sameSite: true}` |
+| `[opts.token]`         | Object              | _optional:_ signedToken options - defaults to `{digest: 'sha256', commonlen: 24, tokenlen: 48}`      |
+| `[opts.ignoreMethods]` | Array&lt;string&gt; | _optional:_ ignore methods `['HEAD', 'OPTIONS']`                                                     |
+| `[opts.host]`          | string              | _optional:_ hostname of service to check against                                                     |
 
 ### create
 
@@ -71,7 +71,6 @@ See [Your API-Centric Web App Is Probably Not Safe Against XSS and CSRF][].
 
 Connect middleware `(req, res, next) => {}` which chains `create` and `verify`.
 
-
 ## Example
 
 ### Forms
@@ -83,16 +82,20 @@ const Csrf = require('signed-token-csrf')
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const app = require('express')()
-const csrf = new Csrf('csrfSecret', {cookie: {secure: false}})
+const csrf = new Csrf('csrfSecret', { cookie: { secure: false } })
 
 // works with or without a session
-app.use(session({secret: 'sessionSecret', resave: false, saveUninitialized: true}))
+app.use(
+  session({ secret: 'sessionSecret', resave: false, saveUninitialized: true })
+)
 
 app.use(csrf.checkOrigin)
 
-app.get('/form',
+app.get(
+  '/form',
   csrf.create, // adds CSRF protection
-  (req, res) => { // render a form
+  (req, res) => {
+    // render a form
     res.end(`
       <form action="/form" method="POST">
         <input type="hidden" name="csrf" value="${req.csrfToken()}" >
@@ -102,8 +105,9 @@ app.get('/form',
     `)
   }
 )
-app.post('/form', // render the submitted values or throw
-  bodyParser.urlencoded({extended: false}),
+app.post(
+  '/form', // render the submitted values or throw
+  bodyParser.urlencoded({ extended: false }),
   csrf.verify,
   (req, res) => {
     res.end(`
@@ -130,20 +134,19 @@ Run example and browse to http://localhost:3000/xhr
 ```js
 app.use(csrf.checkOrigin)
 
-app.get('/api/login',
+app.get(
+  '/api/login',
   (req, res, next) => {
     // prevent creating a new csrf cookie if authenticated
-    const err = req.headers.authorization && httpError(403, 'already authenticated')
+    const err =
+      req.headers.authorization && httpError(403, 'already authenticated')
     next(err)
   },
   csrf.create,
-  (req, res) => res.json({token: 'your-auth-token'})
+  (req, res) => res.json({ token: 'your-auth-token' })
 )
 
-app.use('/api',
-  csrf.verifyXhr,
-  (req, res) => res.json({})
-)
+app.use('/api', csrf.verifyXhr, (req, res) => res.json({}))
 ```
 
 ## Installation
@@ -154,25 +157,22 @@ Requires [nodejs](http://nodejs.org/).
 $ npm install signed-token-csrf
 ```
 
-
 ## Tests
 
 ```sh
 $ npm test
 ```
 
-
 ## License
 
 Unlicense <https://unlicense.org>
-
 
 ## References
 
 <!-- !ref -->
 
-* [Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet - OWASP][Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet - OWASP]
-* [Your API-Centric Web App Is Probably Not Safe Against XSS and CSRF][Your API-Centric Web App Is Probably Not Safe Against XSS and CSRF]
+- [Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet - OWASP][Cross-Site Request Forgery (CSRF) Prevention Cheat Sheet - OWASP]
+- [Your API-Centric Web App Is Probably Not Safe Against XSS and CSRF][Your API-Centric Web App Is Probably Not Safe Against XSS and CSRF]
 
 <!-- ref! -->
 

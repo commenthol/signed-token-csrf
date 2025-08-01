@@ -65,7 +65,10 @@ describe('#signed-token-csrf', function () {
       })
     })
     it('shall pass on matching origin and options.host', function (done) {
-      const csrf = new Csrf('ssshhh', Object.assign({ host: 'aa.aa' }, cookieOpts))
+      const csrf = new Csrf(
+        'ssshhh',
+        Object.assign({ host: 'aa.aa' }, cookieOpts)
+      )
       const req = {
         method: 'GET',
         headers: {

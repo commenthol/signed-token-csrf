@@ -10,7 +10,7 @@ const final = (name) => (req, res) => {
   res.json(res.body)
 }
 
-const finalError = (name) => (err, req, res, next) => {
+const finalError = (name) => (err, req, res, _next) => {
   // console.log(err.stack)
   res.statusCode = err.statusCode || 500
   res.body = {
@@ -30,13 +30,8 @@ const logger = (req, res, next) => {
 
 const appCookie = (csrf, name = 'csrf') => {
   const app = express()
-  app.use(
-    bodyParser.json(),
-    bodyParser.urlencoded({ extended: false })
-  )
-  app.use('/',
-    csrf.csrf
-  )
+  app.use(bodyParser.json(), bodyParser.urlencoded({ extended: false }))
+  app.use('/', csrf.csrf)
   app.use(final(name), finalError(name))
 
   return app
@@ -44,11 +39,9 @@ const appCookie = (csrf, name = 'csrf') => {
 
 const appSession = (csrf, name = 'csrf') => {
   const app = express()
+  app.use(bodyParser.json(), bodyParser.urlencoded({ extended: false }))
   app.use(
-    bodyParser.json(),
-    bodyParser.urlencoded({ extended: false })
-  )
-  app.use('/',
+    '/',
     session({
       secret: 'secret',
       resave: false,
@@ -66,14 +59,12 @@ const appCookieXhr = (csrf, name = 'csrf') => {
   const app = express()
   app.use(cors())
 
+  app.use(bodyParser.json(), bodyParser.urlencoded({ extended: false }))
   app.use(
-    bodyParser.json(),
-    bodyParser.urlencoded({ extended: false })
-  )
-  app.use('/',
+    '/',
     // logger,
     (req, res, next) => {
-      (req.method === 'GET')
+      req.method === 'GET'
         ? csrf.create(req, res, next) // NOTE: Only set CRSF Token on login!
         : csrf.verifyXhr(req, res, next)
     }

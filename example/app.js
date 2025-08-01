@@ -24,21 +24,24 @@ const html = (body) => `<!doctype html>
 ${body}
 </body></html>`
 
-const htmlFormGet = (req) => html(`
+const htmlFormGet = (req) =>
+  html(`
 <form action="/form" method="POST">
   csrf <input type="hidden_" name="csrf" value="${req.csrfToken()}" > use type="hidden"<br>
   text <input type="text" name="text" value="some text"><br>
   <button>Submit</button>
 </form>`)
 
-const htmlFormPost = (req) => html(`
+const htmlFormPost = (req) =>
+  html(`
 <h2>Parameters</h2>
 <pre>
 text: ${req.body.text}
 csrf: ${req.body.csrf}
 </pre>`)
 
-const htmlXhr = () => html(`
+const htmlXhr = () =>
+  html(`
 <p>
   <a href="javascript:test('GET', '/api')">get</a>
   <a href="javascript:test('GET', '/api/login')">get token</a>
@@ -48,34 +51,37 @@ const htmlXhr = () => html(`
 <script src='xhr.js'></script>`)
 
 // works with or without a session - comment line
-app.use(session({ secret: 'sessionSecret', resave: false, saveUninitialized: true }))
+app.use(
+  session({ secret: 'sessionSecret', resave: false, saveUninitialized: true })
+)
 
 app.use(csrf.checkOrigin)
 
-app.get('/form',
+app.get(
+  '/form',
   csrf.create, // adds CSRF middleware
   (req, res) => res.end(htmlFormGet(req))
 )
-app.post('/form',
+app.post(
+  '/form',
   express.urlencoded({ extended: false }),
   csrf.verify,
   (req, res) => res.end(htmlFormPost(req))
 )
 
 app.get('/xhr', (req, res) => res.end(htmlXhr()))
-app.get('/api/login',
+app.get(
+  '/api/login',
   (req, res, next) => {
     // prevent creating a new csrf cookie if authenticated
-    const err = req.headers.authorization && httpError(403, 'already authenticated')
+    const err =
+      req.headers.authorization && httpError(403, 'already authenticated')
     next(err)
   },
   csrf.create,
   (req, res) => res.json({ token: 'your-auth-token' })
 )
-app.use('/api',
-  csrf.verifyXhr,
-  (req, res) => res.json({})
-)
+app.use('/api', csrf.verifyXhr, (req, res) => res.json({}))
 
 app.use('/destroy', (req, res) => {
   res.clearCookie('csrf')
@@ -88,7 +94,7 @@ app.use('/$', (req, res) => {
 
 app.use(express.static(__dirname))
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   res.statusCode = err.status || 500
   if (/json/i.test(req.headers.accept)) {
     res.json({ error: err.message })
