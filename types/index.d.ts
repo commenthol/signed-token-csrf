@@ -31,7 +31,7 @@ declare class Csrf {
         token?: object;
         ignoreMethods?: string[] | undefined;
         host?: string | undefined;
-    } | undefined);
+    });
     opts: {
         cookie: any;
         token: any;
@@ -92,6 +92,6 @@ declare class Csrf {
 declare namespace Csrf {
     export { Request, Response, HttpError };
 }
-type Request = import('./types.js').RequestCsrf;
-type Response = import('./types.js').ResponseCsrf;
-type HttpError = import('./types.js').HttpError;
+type Request = import("./types.js").RequestCsrf;
+type Response = import("./types.js").ResponseCsrf;
+type HttpError = import("./types.js").HttpError;
