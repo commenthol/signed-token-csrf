@@ -1,7 +1,7 @@
 export = Csrf;
-/** @typedef {import('./types').RequestCsrf} Request */
-/** @typedef {import('./types').ResponseCsrf} Response */
-/** @typedef {import('./types').HttpError} HttpError */
+/** @typedef {import('./types.js').RequestCsrf} Request */
+/** @typedef {import('./types.js').ResponseCsrf} Response */
+/** @typedef {import('./types.js').HttpError} HttpError */
 /**
  * A CSRF connect middleware which creates and verifies csrf tokens
  *
@@ -31,7 +31,7 @@ declare class Csrf {
         token?: object;
         ignoreMethods?: string[] | undefined;
         host?: string | undefined;
-    } | undefined);
+    });
     opts: {
         cookie: any;
         token: any;
@@ -92,6 +92,6 @@ declare class Csrf {
 declare namespace Csrf {
     export { Request, Response, HttpError };
 }
-type Request = import('./types').RequestCsrf;
-type Response = import('./types').ResponseCsrf;
-type HttpError = import('./types').HttpError;
+type Request = import("./types.js").RequestCsrf;
+type Response = import("./types.js").ResponseCsrf;
+type HttpError = import("./types.js").HttpError;
