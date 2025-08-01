@@ -3,7 +3,7 @@
 > CSRF connect middlewares using signed tokens
 
 [![NPM version](https://badge.fury.io/js/signed-token-csrf.svg)](https://www.npmjs.com/package/signed-token-csrf/)
-[![Build Status](https://github.com/commenthol/signed-token-csrf/workflows/CI/badge.svg?branch=master&event=push)](https://github.com/commenthol/signed-token-csrf/actions/workflows/ci.yml?query=branch%3Amaster)
+[![Build Status](https://github.com/commenthol/signed-token-csrf/actions/workflows/ci.yml/badge.svg)](https://github.com/commenthol/signed-token-csrf/actions/workflows/ci.yml)
 
 <!-- !toc (minlevel=2) -->
 
